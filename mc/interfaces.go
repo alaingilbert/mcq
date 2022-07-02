@@ -9,7 +9,7 @@ type IIdentifiable interface {
 }
 
 type IItem interface {
-	ID() ID
+	IIdentifiable
 	Count() byte
 	Slot() byte
 	Display() string
@@ -26,7 +26,7 @@ type IEntities interface {
 }
 
 type IEntity interface {
-	ID() ID
+	IIdentifiable
 	CustomName() string
 	CustomNameVisible() bool
 	Glowing() bool
@@ -45,7 +45,7 @@ type IMob interface {
 }
 
 type IBlockEntity interface {
-	ID() ID
+	IIdentifiable
 	X() int
 	Y() int
 	Z() int
