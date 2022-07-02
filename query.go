@@ -271,7 +271,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 							itemsHolder.Items().Each(func(item mc.IItem) {
 								processResult1(item, " in "+blockEntity.ID().String())
 								if shulkerBoxItem, ok := item.(*mc.ShulkerBoxItem); ok {
-									shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
+									shulkerBoxItem.Items().Each(func(item mc.IItem) {
 										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+blockEntity.ID().String())
 									})
 								}
@@ -301,7 +301,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 							mob.HandItems().Each(func(handItem mc.IItem) {
 								processResult1(handItem, " in "+mob.ID().String()+" hand"+desc)
 								if shulkerBoxItem, ok := handItem.(*mc.ShulkerBoxItem); ok {
-									shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
+									shulkerBoxItem.Items().Each(func(item mc.IItem) {
 										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+mob.ID().String()+" hand"+desc)
 									})
 								}
