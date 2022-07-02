@@ -4,12 +4,8 @@ import (
 	"github.com/alaingilbert/mcq/nbt"
 )
 
-type Barrel struct {
-	BaseChest
-}
+type Barrel struct{ ContainerBlockEntity }
 
 func BarrelFromNbt(node *nbt.TagNodeCompound) *Barrel {
-	b := new(Barrel)
-	b.BaseChest = *BaseChestFromNbt(node)
-	return b
+	return &Barrel{ContainerBlockEntity: *ContainerBlockEntityFromNbt(node)}
 }
