@@ -339,6 +339,11 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						if container, ok := entity.(mc.IContainerEntity); ok {
 							container.Items().Each(func(item mc.IItem) {
 								processResult1(item, " in "+container.ID().String())
+								if shulkerBoxItem, ok := item.(*mc.ShulkerBoxItem); ok {
+									shulkerBoxItem.Items().Each(func(item mc.IItem) {
+										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+container.ID().String())
+									})
+								}
 							})
 						}
 
