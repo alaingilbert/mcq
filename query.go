@@ -346,19 +346,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 								}
 							})
 						}
-
-						// Special case for item frame
-						if itemFrame, ok := entity.(mc.IItemFrame); ok {
-							if itemFrame.Item() != nil {
-								processResult1(itemFrame.Item(), " in "+itemFrame.ID().String())
-								if shulkerBoxItem, ok := itemFrame.Item().(*mc.ShulkerBoxItem); ok {
-									shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
-										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+itemFrame.ID().String())
-									})
-								}
-							}
-						}
-
+						
 					})
 				}
 			})
