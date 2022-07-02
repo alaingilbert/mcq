@@ -52,10 +52,8 @@ mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.Shu
 Find all named items/entities
 ```go
 mcq.Q(world).Find(func(result mcq.Result) {
-    if item, ok := result.Item.(mc.IItem); ok {
-        fmt.Printf("%s %v %s\n", result.Coord(), result, item.Display())
-    } else if entity, ok := result.Item.(mc.IEntity); ok {
-        fmt.Printf("%s %v %s\n", result.Coord(), result, entity.CustomName())
+    if i, ok := result.Item.(mc.INamed); ok {
+        fmt.Printf("%s %v %s\n", result.Coord(), result, i.CustomName())
     }
 }, mcq.WithCustomName(true))
 ```

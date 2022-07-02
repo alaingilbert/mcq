@@ -220,39 +220,22 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 		if q.hasTarget(item.ID()) {
 			if q.entities.CustomName != nil {
 				if *q.entities.CustomName {
-					if i, ok := item.(mc.IItem); ok {
-						if i.Display() == "" {
-							return
-						}
-					} else if e, ok := item.(mc.IEntity); ok {
-						if e.CustomName() == "" {
-							return
-						}
-					} else if e, ok := item.(mc.IBlockEntity); ok {
-						if e.CustomName() == "" {
+					// Keep only named things
+					if i, ok := item.(mc.INamed); ok {
+						if i.CustomName() == "" {
 							return
 						}
 					} else {
 						return
 					}
 				} else {
-					if i, ok := item.(mc.IItem); ok {
-						if i.Display() != "" {
-							return
-						}
-					} else if e, ok := item.(mc.IEntity); ok {
-						if e.CustomName() != "" {
-							return
-						}
-					} else if e, ok := item.(mc.IBlockEntity); ok {
-						if e.CustomName() != "" {
-							return
-						}
-					} else {
+					// Skip all named things
+					if i, ok := item.(mc.INamed); ok && i.CustomName() != "" {
 						return
 					}
 				}
 			}
+
 			description := ""
 			if e, ok := item.(mc.IEntity); ok {
 				description += "entity " + e.ID().String()

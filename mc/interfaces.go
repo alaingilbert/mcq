@@ -60,3 +60,7 @@ type IItemFrame interface {
 	IEntity
 	Item() IItem
 }
+
+type INamed interface {
+	CustomName() string
+}

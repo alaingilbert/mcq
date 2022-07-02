@@ -25,6 +25,7 @@ type BaseItem struct {
 func (i BaseItem) ID() ID                    { return i.id }
 func (i BaseItem) Tag() *nbt.TagNodeCompound { return i.tag }
 func (i BaseItem) Display() string           { return i.display }
+func (i BaseItem) CustomName() string        { return i.display }
 func (i BaseItem) Nbt() *nbt.TagNodeCompound { return i.nbt }
 func (i BaseItem) Slot() byte                { return i.slot }
 func (i BaseItem) Count() byte               { return i.count }
