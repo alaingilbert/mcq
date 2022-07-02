@@ -25,4 +25,5 @@ func ShulkerBoxItemFromNbt(node *nbt.TagNodeCompound) *ShulkerBoxItem {
 	return i
 }
 
+// Items implements IContainerEntity
 func (s ShulkerBoxItem) Items() IItems { return s.ShulkerBox.items }
