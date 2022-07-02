@@ -4,26 +4,11 @@ import (
 	"github.com/alaingilbert/mcq/nbt"
 )
 
-type ShulkerBox struct {
-	blockEntity
-	items BaseItems
-}
+type ShulkerBox struct{ ContainerBlockEntity }
 
 func ShulkerBoxFromNbt(node *nbt.TagNodeCompound) *ShulkerBox {
-	s := new(ShulkerBox)
-	s.blockEntity = *BlockEntityFromNbt(node)
-	s.items = make(BaseItems, 0)
-	if items, ok := node.Entries["Items"].(*nbt.TagNodeList); ok {
-		items.Each(func(node nbt.ITagNode) {
-			item := node.(*nbt.TagNodeCompound)
-			parsedItem := parseItemFromNbt(item)
-			s.items = append(s.items, parsedItem)
-		})
-	}
-	return s
+	return &ShulkerBox{ContainerBlockEntity: *ContainerBlockEntityFromNbt(node)}
 }
-
-func (s *ShulkerBox) Items() IItems { return s.items }
 
 type ShulkerBoxItem struct {
 	BaseItem
