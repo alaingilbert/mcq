@@ -1,5 +1,7 @@
 package nbt
 
+// https://minecraft.fandom.com/wiki/NBT_format#TAG_definition
+
 // TagType ...
 type TagType byte
 
