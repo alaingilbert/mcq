@@ -304,41 +304,35 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 							processResult(t.region.GetDimension(), x, y, z, item, desc)
 						}
 
+						processMob := func(mob mc.IMob, desc string) {
+							mob.HandItems().Each(func(handItem mc.IItem) {
+								processResult1(handItem, " in "+mob.ID().String()+" hand"+desc)
+								if shulkerBoxItem, ok := handItem.(*mc.ShulkerBoxItem); ok {
+									shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
+										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+mob.ID().String()+" hand"+desc)
+									})
+								}
+							})
+							mob.ArmorItems().Each(func(armorItem mc.IItem) {
+								processResult1(armorItem, " in "+mob.ID().String()+" armor"+desc)
+							})
+						}
+
 						// Process entities themselves
 						processResult1(entity, "")
 
 						// Handle vehicles (boat, minecart...)
 						entity.Passengers().Each(func(passenger mc.IEntity) {
 							processResult1(passenger, " in "+entity.ID().String())
-							// Mobs that hold something in their hand
+							// Mobs that hold something in their hand/armor
 							if mob, ok := passenger.(mc.IMob); ok {
-								mob.HandItems().Each(func(handItem mc.IItem) {
-									processResult1(handItem, " in "+passenger.ID().String()+" hand in "+entity.ID().String())
-									if shulkerBoxItem, ok := handItem.(*mc.ShulkerBoxItem); ok {
-										shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
-											processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+passenger.ID().String()+" hand in "+entity.ID().String())
-										})
-									}
-								})
-								mob.ArmorItems().Each(func(armorItem mc.IItem) {
-									processResult1(armorItem, " in "+passenger.ID().String()+" armor in "+entity.ID().String())
-								})
+								processMob(mob, " in "+entity.ID().String())
 							}
 						})
 
-						// Mobs that hold something in their hand
+						// Mobs that hold something in their hand/armor
 						if mob, ok := entity.(mc.IMob); ok {
-							mob.HandItems().Each(func(handItem mc.IItem) {
-								processResult1(handItem, " in "+entity.ID().String()+" hand")
-								if shulkerBoxItem, ok := handItem.(*mc.ShulkerBoxItem); ok {
-									shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
-										processResult1(item, " in "+shulkerBoxItem.ID().String()+" in "+entity.ID().String()+" hand")
-									})
-								}
-							})
-							mob.ArmorItems().Each(func(armorItem mc.IItem) {
-								processResult1(armorItem, " in "+mob.ID().String()+" armor")
-							})
+							processMob(mob, "")
 						}
 
 						// Special case for item frame
