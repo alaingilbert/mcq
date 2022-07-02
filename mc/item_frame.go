@@ -21,22 +21,14 @@ func BaseItemFrameFromNbt(node *nbt.TagNodeCompound) *BaseItemFrame {
 	return i
 }
 
-type ItemFrame struct {
-	BaseItemFrame
-}
+type ItemFrame struct{ BaseItemFrame }
 
 func ItemFrameFromNbt(node *nbt.TagNodeCompound) *ItemFrame {
-	i := new(ItemFrame)
-	i.BaseItemFrame = *BaseItemFrameFromNbt(node)
-	return i
+	return &ItemFrame{BaseItemFrame: *BaseItemFrameFromNbt(node)}
 }
 
-type GlowItemFrame struct {
-	BaseItemFrame
-}
+type GlowItemFrame struct{ BaseItemFrame }
 
 func GlowItemFrameFromNbt(node *nbt.TagNodeCompound) *GlowItemFrame {
-	i := new(GlowItemFrame)
-	i.BaseItemFrame = *BaseItemFrameFromNbt(node)
-	return i
+	return &GlowItemFrame{BaseItemFrame: *BaseItemFrameFromNbt(node)}
 }
