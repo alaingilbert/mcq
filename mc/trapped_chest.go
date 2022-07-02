@@ -4,12 +4,8 @@ import (
 	"github.com/alaingilbert/mcq/nbt"
 )
 
-type TrappedChest struct {
-	BaseChest
-}
+type TrappedChest struct{ ContainerBlockEntity }
 
 func TrappedChestFromNbt(node *nbt.TagNodeCompound) *TrappedChest {
-	c := new(TrappedChest)
-	c.BaseChest = *BaseChestFromNbt(node)
-	return c
+	return &TrappedChest{ContainerBlockEntity: *ContainerBlockEntityFromNbt(node)}
 }
