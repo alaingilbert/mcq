@@ -21,7 +21,7 @@ mcq.Q(world).Targets(mc.WrittenBookID, mc.WritableBookID).Find(func(result mcq.R
 
 Find all ShulkerBox in a region
 ```go
-mcq.Q(world).NewBBox(mc.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
+mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
     if shulkerBox, ok := result.Item.(*mc.ShulkerBox); ok {
         fmt.Printf("SHULKER: %s %s %v\n", result.Coord(), result.Description, shulkerBox)
     } else if shulkerBoxItem, ok := result.Item.(*mc.ShulkerBoxItem); ok {
