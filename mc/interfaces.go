@@ -49,6 +49,7 @@ type IBlockEntity interface {
 	X() int
 	Y() int
 	Z() int
+	CustomName() string
 }
 
 type IContainerEntity interface {
