@@ -56,6 +56,9 @@ func ParseBlockEntity(node *nbt.TagNodeCompound) (parsed IBlockEntity) {
 	case SignID:
 		parsed = SignFromNbt(node)
 	default:
+		if _, ok := node.Entries["Items"]; ok {
+			return ContainerBlockEntityFromNbt(node)
+		}
 		parsed = BlockEntityFromNbt(node)
 	}
 	return

@@ -335,6 +335,13 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 							processMob(mob, "")
 						}
 
+						// Container entities such as minecart_hopper
+						if container, ok := entity.(mc.IContainerEntity); ok {
+							container.Items().Each(func(item mc.IItem) {
+								processResult1(item, " in "+container.ID().String())
+							})
+						}
+
 						// Special case for item frame
 						if itemFrame, ok := entity.(mc.IItemFrame); ok {
 							if itemFrame.Item() != nil {

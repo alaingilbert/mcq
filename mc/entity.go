@@ -224,6 +224,9 @@ func ParseEntity(node *nbt.TagNodeCompound) (parsed IEntity) {
 		parsed = ZombifiedPiglinFromNbt(node)
 
 	default:
+		if _, ok := node.Entries["Items"]; ok {
+			return ContainerEntityFromNbt(node)
+		}
 		parsed = EntityFromNbt(node)
 	}
 	return

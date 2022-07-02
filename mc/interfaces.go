@@ -53,6 +53,7 @@ type IBlockEntity interface {
 }
 
 type IContainerEntity interface {
+	IIdentifiable
 	Items() IItems
 }
 
