@@ -10,6 +10,13 @@ type BaseItemFrame struct {
 }
 
 func (e BaseItemFrame) Item() IItem { return e.item }
+func (e BaseItemFrame) Items() IItems {
+	out := make(BaseItems, 0)
+	if e.item != nil {
+		out = append(out, e.item)
+	}
+	return out
+}
 
 func BaseItemFrameFromNbt(node *nbt.TagNodeCompound) *BaseItemFrame {
 	i := new(BaseItemFrame)
