@@ -31,14 +31,8 @@ mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.Shu
 Find all ShulkerBox in a region where the first slot is an Apple
 ```go
 mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
-    if shulkerBox, ok := result.Item.(*mc.ShulkerBox); ok {
+    if shulkerBox, ok := result.Item.(mc.IContainerEntity); ok {
         shulkerBox.Items().Each(func(item mc.IItem) {
-            if item.Slot() == 0 && item.ID() == mc.AppleID {
-                fmt.Printf("Found ShulkerBox with apple in first slot at %s\n", result.Coord())
-            }
-        })
-    } else if shulkerBoxItem, ok := result.Item.(*mc.ShulkerBoxItem); ok {
-        shulkerBoxItem.ShulkerBox.Items().Each(func(item mc.IItem) {
             if item.Slot() == 0 && item.ID() == mc.AppleID {
                 fmt.Printf("Found ShulkerBox with apple in first slot at %s\n", result.Coord())
             }
