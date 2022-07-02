@@ -39,3 +39,5 @@ func ShulkerBoxItemFromNbt(node *nbt.TagNodeCompound) *ShulkerBoxItem {
 	}
 	return i
 }
+
+func (s ShulkerBoxItem) Items() IItems { return s.ShulkerBox.items }
