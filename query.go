@@ -311,22 +311,22 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 							})
 						}
 
+						processEntity := func(entity mc.IEntity, desc string) {
+							// Process entities themselves
+							processResult1(entity, desc)
+							// Mobs that hold something in their hand/armor
+							if mob, ok := entity.(mc.IMob); ok {
+								processMob(mob, desc)
+							}
+						}
+
 						// Process entities themselves
-						processResult1(entity, "")
+						processEntity(entity, "")
 
 						// Handle vehicles (boat, minecart...)
 						entity.Passengers().Each(func(passenger mc.IEntity) {
-							processResult1(passenger, " in "+entity.ID().String())
-							// Mobs that hold something in their hand/armor
-							if mob, ok := passenger.(mc.IMob); ok {
-								processMob(mob, " in "+entity.ID().String())
-							}
+							processEntity(passenger, " in "+entity.ID().String())
 						})
-
-						// Mobs that hold something in their hand/armor
-						if mob, ok := entity.(mc.IMob); ok {
-							processMob(mob, "")
-						}
 
 						// Container entities such as minecart_hopper
 						if container, ok := entity.(mc.IContainerEntity); ok {
