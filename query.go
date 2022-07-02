@@ -266,13 +266,6 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						// Process the block entity itself
 						processResult1(blockEntity, "")
 
-						// Lectern special case
-						if lectern, ok := blockEntity.(*mc.Lectern); ok {
-							if lectern.HasBook() {
-								processResult1(lectern.BookItem(), " on lectern")
-							}
-						}
-
 						// Process containers such as chest/barrel/shulker
 						if itemsHolder, ok := blockEntity.(mc.IContainerEntity); ok {
 							itemsHolder.Items().Each(func(item mc.IItem) {
@@ -346,7 +339,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 								}
 							})
 						}
-						
+
 					})
 				}
 			})

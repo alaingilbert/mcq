@@ -39,3 +39,11 @@ func (l *Lectern) Book() IBook {
 	}
 	return nil
 }
+
+func (l Lectern) Items() IItems {
+	out := make(BaseItems, 0)
+	if l.bookItem != nil {
+		out = append(out, l.bookItem)
+	}
+	return out
+}
