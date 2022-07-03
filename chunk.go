@@ -58,6 +58,8 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 		x = blockPos % XDim
 		y += section * SectionHeight
 		y -= 64
+		x += c.localX*16 + c.regionX*32*16
+		z += c.localZ*16 + c.regionZ*32*16
 		return
 	}
 	sections := c.GetData().Root().Entries["sections"].(*nbt.TagNodeList)

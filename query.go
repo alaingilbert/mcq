@@ -361,8 +361,6 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 
 				if t.bbox.Intersect(chunkBBox) {
 					chunk.Each(func(blockID mc.ID, x, y, z int) {
-						x += t.region.GetX()*32*16 + chunk.GetX()*16
-						z += t.region.GetZ()*32*16 + chunk.GetZ()*16
 						block := NewBlock(blockID, t.region.dim, x, y, z)
 						if t.bbox != nil && !t.bbox.Contains(block) {
 							return
