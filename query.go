@@ -43,18 +43,14 @@ type regionQ struct {
 }
 
 type Result struct {
-	Dim         mc.Dimension
-	X, Y, Z     int
+	coord       mc.ICoordinate
 	Description string
 	Item        mc.IIdentifiable
 }
 
-func NewResult(dim mc.Dimension, x, y, z int, desc string, itemParsed mc.IIdentifiable) Result {
+func NewResult(coord mc.ICoordinate, desc string, itemParsed mc.IIdentifiable) Result {
 	return Result{
-		Dim:         dim,
-		X:           x,
-		Y:           y,
-		Z:           z,
+		coord:       coord,
 		Description: desc,
 		Item:        itemParsed,
 	}
@@ -62,7 +58,7 @@ func NewResult(dim mc.Dimension, x, y, z int, desc string, itemParsed mc.IIdenti
 
 func (r Result) Coord() string {
 	var shortDim string
-	switch r.Dim {
+	switch r.coord.Dim() {
 	case mc.Overworld:
 		shortDim = "O"
 	case mc.Nether:
@@ -70,7 +66,7 @@ func (r Result) Coord() string {
 	case mc.TheEnd:
 		shortDim = "E"
 	}
-	return fmt.Sprintf("[%s|%d %d %d]", shortDim, r.X, r.Y, r.Z)
+	return fmt.Sprintf("[%s|%d %d %d]", shortDim, r.coord.X(), r.coord.Y(), r.coord.Z())
 }
 
 func Q(world *World) *query {
@@ -284,7 +280,8 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 				description += "found " + item.ID().String()
 			}
 			description += desc
-			clb(NewResult(dim, x, y, z, description, item))
+			coord := mc.NewCoord(dim, x, y, z)
+			clb(NewResult(coord, description, item))
 		}
 	}
 
