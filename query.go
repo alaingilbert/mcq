@@ -24,6 +24,12 @@ func (q *query) hasTarget(targetID mc.ID) bool {
 	return found
 }
 
+type IBBox interface {
+	Coord1() mc.ICoordinate
+	Coord2() mc.ICoordinate
+	Contains(coord mc.ICoordinate) bool
+}
+
 type BBox struct {
 	coord1, coord2 mc.ICoordinate
 }
@@ -95,12 +101,6 @@ func Q(world *World) *query {
 	q.bboxes = make([]IBBox, 0)
 	q.targets = make(map[mc.ID]struct{})
 	return q
-}
-
-type IBBox interface {
-	Coord1() mc.ICoordinate
-	Coord2() mc.ICoordinate
-	Contains(coord mc.ICoordinate) bool
 }
 
 func (q *query) BBox(bbox IBBox) *query {
