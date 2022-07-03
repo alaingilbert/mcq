@@ -144,10 +144,10 @@ func hasItemsScope(scope byte) bool {
 	return scope&ItemsScope == ItemsScope
 }
 
-func (q *query) Block(x, y, z int, clb func(mc.ID)) {
+func (q *query) Block(dim Dimension, x, y, z int, clb func(mc.ID)) {
 	yy := y + 64
 	rx, rz := RegionCoordinatesFromWorldXZ(x, z)
-	region := q.world.RegionManager().GetRegion(Overworld, rx, rz)
+	region := q.world.RegionManager().GetRegion(dim, rx, rz)
 	chunk := region.GetChunkFromWorldXZ(x, z)
 	sections, ok := chunk.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
 	if !ok {
