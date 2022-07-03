@@ -14,25 +14,32 @@ const ZDim int = 16
 
 // Chunk ...
 type Chunk struct {
-	localX, localZ int
-	data           *nbt.NbtTree
+	regionX, regionZ int
+	localX, localZ   int
+	data             *nbt.NbtTree
 }
 
 // NewChunk ...
-func NewChunk(localX, localZ int) *Chunk {
+func NewChunk(regionX, regionZ, localX, localZ int) *Chunk {
 	chunk := new(Chunk)
 	chunk.localX = localX
 	chunk.localZ = localZ
+	chunk.regionX = regionX
+	chunk.regionZ = regionZ
 	return chunk
 }
 
-func (c *Chunk) GetX() int {
-	return c.localX
-}
+// GetWorldX relative to world
+func (c *Chunk) GetWorldX() int { return c.localX*16 + c.regionX*32*16 }
 
-func (c *Chunk) GetZ() int {
-	return c.localZ
-}
+// GetWorldZ relative to world
+func (c *Chunk) GetWorldZ() int { return c.localZ*16 + c.regionZ*32*16 }
+
+// GetX relative to the region (0 to 31)
+func (c *Chunk) GetX() int { return c.localX }
+
+// GetZ relative to the region (0 to 31)
+func (c *Chunk) GetZ() int { return c.localZ }
 
 func (c *Chunk) GetData() (data *nbt.NbtTree) {
 	return c.data
