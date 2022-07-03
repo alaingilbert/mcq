@@ -343,12 +343,10 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 		for _, t := range regionsNbbox {
 			t.region.Each(func(chunk *Chunk) {
 
-				chunkBBox := New3DBBox(t.region.dim,
+				chunkBBox := New2DBBox(t.region.dim,
 					chunk.GetX()*16+t.region.GetX()*32*16,
-					-65536,
 					chunk.GetZ()*16+t.region.GetZ()*32*16,
 					chunk.GetX()*16+t.region.GetX()*32*16+16,
-					30000000,
 					chunk.GetZ()*16+t.region.GetZ()*32*16+16)
 
 				if (t.bbox.Coord2().X() > chunkBBox.coord1.X()) &&
