@@ -5,6 +5,7 @@ import (
 	"compress/zlib"
 	"encoding/binary"
 	"fmt"
+	"github.com/alaingilbert/mcq/mc"
 	"github.com/alaingilbert/mcq/nbt"
 	"io"
 	"io/ioutil"
@@ -14,31 +15,10 @@ import (
 	"path"
 )
 
-type Dimension int
-
-func (d Dimension) String() string {
-	switch d {
-	case Overworld:
-		return "Overworld"
-	case Nether:
-		return "Nether"
-	case TheEnd:
-		return "TheEnd"
-	default:
-		return "n/a"
-	}
-}
-
-const (
-	Overworld Dimension = iota + 1
-	Nether
-	TheEnd
-)
-
 // Region represent a minecraft region.
 type Region struct {
 	x, z          int
-	dim           Dimension
+	dim           mc.Dimension
 	regionManager *RegionManager
 }
 
@@ -47,7 +27,7 @@ type Region struct {
 // regionX region X axis.
 // regionZ region Z axis.
 // It returns a pointer to the region.
-func NewRegion(regionManager *RegionManager, dim Dimension, regionX, regionZ int) *Region {
+func NewRegion(regionManager *RegionManager, dim mc.Dimension, regionX, regionZ int) *Region {
 	region := new(Region)
 	region.regionManager = regionManager
 	region.x = regionX
@@ -57,7 +37,7 @@ func NewRegion(regionManager *RegionManager, dim Dimension, regionX, regionZ int
 }
 
 // NewRegionFromXYZ ...
-func NewRegionFromXYZ(regionManager *RegionManager, dim Dimension, x, y, z int) *Region {
+func NewRegionFromXYZ(regionManager *RegionManager, dim mc.Dimension, x, y, z int) *Region {
 	regionX, regionZ := regionCoordinatesFromXYZ(x, y, z)
 	return NewRegion(regionManager, dim, regionX, regionZ)
 }
@@ -86,11 +66,11 @@ func regionCoordinatesFromXYZ(x, y, z int) (int, int) {
 func (r *Region) Each(clb func(chunk *Chunk)) {
 	var p string
 	switch r.dim {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.regionManager.WorldPath(), RegionDir, r.FileName())
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.regionManager.WorldPath(), NetherDir, RegionDir, r.FileName())
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
 	}
 
@@ -117,11 +97,11 @@ func (r *Region) Each(clb func(chunk *Chunk)) {
 func (r *Region) EachEntities(clb func(chunk *Chunk)) {
 	var p string
 	switch r.dim {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.regionManager.WorldPath(), EntitiesDir, r.FileName())
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.regionManager.WorldPath(), NetherDir, EntitiesDir, r.FileName())
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, EntitiesDir, r.FileName())
 	}
 
@@ -246,7 +226,7 @@ func getChunkFromReadSeeker(f io.ReadSeeker, chunkX, chunkZ int) *Chunk {
 	return nil
 }
 
-func (r *Region) GetDimension() Dimension {
+func (r *Region) GetDimension() mc.Dimension {
 	return r.dim
 }
 
@@ -259,11 +239,11 @@ func (r *Region) GetChunkFromWorldXZ(worldX, worldZ int) *Chunk {
 func (r *Region) GetEntities(localX, localZ int) *Chunk {
 	var p string
 	switch r.dim {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.regionManager.WorldPath(), EntitiesDir, r.FileName())
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.regionManager.WorldPath(), NetherDir, EntitiesDir, r.FileName())
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, EntitiesDir, r.FileName())
 	}
 	return processRMCAFile(p, localX, localZ)
@@ -273,14 +253,14 @@ func (r *Region) GetEntities(localX, localZ int) *Chunk {
 // localX X position of the chunk in the region.
 // localZ Z position of the chunk in the region.
 // It returns a pointer to the chunk.
-func (r *Region) GetChunk(dimension Dimension, localX, localZ int) *Chunk {
+func (r *Region) GetChunk(dimension mc.Dimension, localX, localZ int) *Chunk {
 	var p string
 	switch dimension {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.regionManager.WorldPath(), RegionDir, r.FileName())
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.regionManager.WorldPath(), NetherDir, RegionDir, r.FileName())
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
 	}
 	return processRMCAFile(p, localX, localZ)

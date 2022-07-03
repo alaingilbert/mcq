@@ -65,3 +65,11 @@ type IItemFrame interface {
 type INamed interface {
 	CustomName() string
 }
+
+type ICoordinate interface {
+	Dim() Dimension
+	X() int
+	Y() int
+	Z() int
+	Unpack() (Dimension, int, int, int)
+}

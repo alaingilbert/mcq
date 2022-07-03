@@ -12,7 +12,7 @@ type query struct {
 	bboxes      []BBox
 	targets     map[mc.ID]struct{}
 	entities    *EntitiesConf
-	dim         Dimension
+	dim         mc.Dimension
 	searchScope byte
 }
 
@@ -25,11 +25,11 @@ func (q *query) hasTarget(targetID mc.ID) bool {
 }
 
 type BBox struct {
-	dim            Dimension
+	dim            mc.Dimension
 	x1, z1, x2, z2 int
 }
 
-func NewBBox(dim Dimension, x1, z1, x2, z2 int) BBox {
+func NewBBox(dim mc.Dimension, x1, z1, x2, z2 int) BBox {
 	return BBox{dim: dim, x1: x1, z1: z1, x2: x2, z2: z2}
 }
 
@@ -38,19 +38,19 @@ func (b *BBox) Contains(x, z int) bool {
 }
 
 type regionQ struct {
-	dim  Dimension
+	dim  mc.Dimension
 	x, z int
 }
 
 type Result struct {
-	Dim         Dimension
+	Dim         mc.Dimension
 	X, Y, Z     int
 	Description string
 	NbtItem     *nbt.TagNodeCompound // TODO: Remove?
 	Item        any
 }
 
-func NewResult(dim Dimension, x, y, z int, desc string, itemParsed any) Result {
+func NewResult(dim mc.Dimension, x, y, z int, desc string, itemParsed any) Result {
 	return Result{
 		Dim:         dim,
 		X:           x,
@@ -64,11 +64,11 @@ func NewResult(dim Dimension, x, y, z int, desc string, itemParsed any) Result {
 func (r Result) Coord() string {
 	var shortDim string
 	switch r.Dim {
-	case Overworld:
+	case mc.Overworld:
 		shortDim = "O"
-	case Nether:
+	case mc.Nether:
 		shortDim = "N"
-	case TheEnd:
+	case mc.TheEnd:
 		shortDim = "E"
 	}
 	return fmt.Sprintf("[%s|%d %d %d]", shortDim, r.X, r.Y, r.Z)
@@ -87,7 +87,7 @@ func (q *query) BBox(bbox BBox) *query {
 	return q
 }
 
-func (q *query) In(dim Dimension) *query {
+func (q *query) In(dim mc.Dimension) *query {
 	q.dim = dim
 	return q
 }
@@ -145,7 +145,8 @@ func hasItemsScope(scope byte) bool {
 	return scope&ItemsScope == ItemsScope
 }
 
-func (q *query) Block(dim Dimension, x, y, z int, clb func(mc.ID)) {
+func (q *query) Block(coord mc.ICoordinate, clb func(mc.ID)) {
+	dim, x, y, z := coord.Unpack()
 	yy := y + 64
 	rx, rz := RegionCoordinatesFromWorldXZ(x, z)
 	region := q.world.RegionManager().GetRegion(dim, rx, rz)
@@ -222,13 +223,13 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 
 	if len(q.bboxes) == 0 {
 		if q.dim == 0 {
-			q.world.RegionManager().Each(Overworld, func(region *Region) {
+			q.world.RegionManager().Each(mc.Overworld, func(region *Region) {
 				regionsNbbox = append(regionsNbbox, regionNbbox{region, nil})
 			})
-			q.world.RegionManager().Each(Nether, func(region *Region) {
+			q.world.RegionManager().Each(mc.Nether, func(region *Region) {
 				regionsNbbox = append(regionsNbbox, regionNbbox{region, nil})
 			})
-			q.world.RegionManager().Each(TheEnd, func(region *Region) {
+			q.world.RegionManager().Each(mc.TheEnd, func(region *Region) {
 				regionsNbbox = append(regionsNbbox, regionNbbox{region, nil})
 			})
 		} else {
@@ -257,7 +258,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 		}
 	}
 
-	processResult := func(dim Dimension, x, y, z int, item mc.IIdentifiable, desc string) {
+	processResult := func(dim mc.Dimension, x, y, z int, item mc.IIdentifiable, desc string) {
 		if q.hasTarget(item.ID()) {
 			if q.entities.CustomName != nil {
 				if *q.entities.CustomName {

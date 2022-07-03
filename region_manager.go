@@ -1,6 +1,7 @@
 package mcq
 
 import (
+	"github.com/alaingilbert/mcq/mc"
 	"os"
 	"path"
 	"strconv"
@@ -30,7 +31,7 @@ func NewRegionManager(pWorldPath string) *RegionManager {
 // pRegionX coordinate of the region on the X axis.
 // pRegionZ coordinate of the region on the Z axis.
 // It returns a pointer to a region.
-func (r *RegionManager) GetRegion(dim Dimension, pRegionX, pRegionZ int) *Region {
+func (r *RegionManager) GetRegion(dim mc.Dimension, pRegionX, pRegionZ int) *Region {
 	return NewRegion(r, dim, pRegionX, pRegionZ)
 }
 
@@ -39,7 +40,7 @@ func (r *RegionManager) GetRegion(dim Dimension, pRegionX, pRegionZ int) *Region
 // pY y world coordinate.
 // pZ z world coordinate.
 // It returns a pointer to a region.
-func (r *RegionManager) GetRegionFromXYZ(dim Dimension, pX, pY, pZ int) *Region {
+func (r *RegionManager) GetRegionFromXYZ(dim mc.Dimension, pX, pY, pZ int) *Region {
 	return NewRegionFromXYZ(r, dim, pX, pY, pZ)
 }
 
@@ -60,7 +61,7 @@ func getFileNames(p string) []string {
 	return newFiles
 }
 
-func (r *RegionManager) Each(dim Dimension, clb func(region *Region)) {
+func (r *RegionManager) Each(dim mc.Dimension, clb func(region *Region)) {
 	fNames := r.RegionFileNames(dim)
 	for _, fName := range fNames {
 		splits := strings.SplitN(fName, ".", 4)
@@ -71,7 +72,7 @@ func (r *RegionManager) Each(dim Dimension, clb func(region *Region)) {
 	}
 }
 
-func (r *RegionManager) EachEntities(dim Dimension, clb func(region *Region)) {
+func (r *RegionManager) EachEntities(dim mc.Dimension, clb func(region *Region)) {
 	fNames := r.EntitiesFileNames(dim)
 	for _, fName := range fNames {
 		splits := strings.SplitN(fName, ".", 4)
@@ -83,27 +84,27 @@ func (r *RegionManager) EachEntities(dim Dimension, clb func(region *Region)) {
 }
 
 // RegionFileNames ...
-func (r *RegionManager) RegionFileNames(dim Dimension) []string {
+func (r *RegionManager) RegionFileNames(dim mc.Dimension) []string {
 	var p string
 	switch dim {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.mWorldPath, RegionDir)
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.mWorldPath, NetherDir, RegionDir)
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.mWorldPath, TheEndDir, RegionDir)
 	}
 	return getFileNames(p)
 }
 
-func (r *RegionManager) EntitiesFileNames(dim Dimension) []string {
+func (r *RegionManager) EntitiesFileNames(dim mc.Dimension) []string {
 	var p string
 	switch dim {
-	case Overworld:
+	case mc.Overworld:
 		p = path.Join(r.mWorldPath, EntitiesDir)
-	case Nether:
+	case mc.Nether:
 		p = path.Join(r.mWorldPath, NetherDir, EntitiesDir)
-	case TheEnd:
+	case mc.TheEnd:
 		p = path.Join(r.mWorldPath, TheEndDir, EntitiesDir)
 	}
 	return getFileNames(p)
