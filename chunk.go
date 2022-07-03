@@ -30,10 +30,10 @@ func NewChunk(regionX, regionZ, localX, localZ int) *Chunk {
 }
 
 // GetWorldX relative to world
-func (c *Chunk) GetWorldX() int { return c.localX*16 + c.regionX*32*16 }
+func (c *Chunk) GetWorldX() int { return c.localX<<4 + c.regionX<<9 }
 
 // GetWorldZ relative to world
-func (c *Chunk) GetWorldZ() int { return c.localZ*16 + c.regionZ*32*16 }
+func (c *Chunk) GetWorldZ() int { return c.localZ<<4 + c.regionZ<<9 }
 
 // GetX relative to the region (0 to 31)
 func (c *Chunk) GetX() int { return c.localX }
@@ -58,8 +58,8 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 		x = blockPos % XDim
 		y += section * SectionHeight
 		y -= 64
-		x += c.localX*16 + c.regionX*32*16
-		z += c.localZ*16 + c.regionZ*32*16
+		x += c.GetWorldX()
+		z += c.GetWorldZ()
 		return
 	}
 	sections := c.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
