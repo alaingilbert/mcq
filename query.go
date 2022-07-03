@@ -122,6 +122,7 @@ func (q *query) Targets(targets ...string) *query {
 
 type EntitiesConf struct {
 	CustomName *bool
+	WithBlocks bool
 	//WithEntities bool
 	//WithItems    bool
 }
@@ -132,6 +133,11 @@ var WithCustomName = func(customName bool) EntitiesOption {
 	return func(conf *EntitiesConf) {
 		conf.CustomName = &customName
 	}
+}
+
+// WithBlocks will search all blocks in the chunks as well
+var WithBlocks = func(conf *EntitiesConf) {
+	conf.WithBlocks = true
 }
 
 //var WithItems = func(conf *EntitiesConf) {
@@ -158,12 +164,20 @@ func setItemsScope(scope byte) byte {
 	return scope
 }
 
+func setBlockScope(scope byte) byte {
+	scope |= BlocksScope
+	return scope
+}
+
 func hasEntitiesScope(scope byte) bool {
 	return scope&EntitiesScope == EntitiesScope
 }
 
 func hasItemsScope(scope byte) bool {
 	return scope&ItemsScope == ItemsScope
+}
+func hasBlockScope(scope byte) bool {
+	return scope&BlocksScope == BlocksScope
 }
 
 func (q *query) Block(coord mc.ICoordinate, clb func(mc.ID)) {
@@ -207,6 +221,23 @@ func (q *query) Block(coord mc.ICoordinate, clb func(mc.ID)) {
 	clb(blockID)
 }
 
+type Block struct {
+	id      mc.ID
+	dim     mc.Dimension
+	x, y, z int
+}
+
+func NewBlock(id mc.ID, dim mc.Dimension, x, y, z int) *Block {
+	return &Block{id: id, dim: dim, x: x, y: y, z: z}
+}
+
+func (b Block) ID() mc.ID                             { return b.id }
+func (b Block) Dim() mc.Dimension                     { return b.dim }
+func (b Block) X() int                                { return b.x }
+func (b Block) Y() int                                { return b.y }
+func (b Block) Z() int                                { return b.z }
+func (b Block) Unpack() (mc.Dimension, int, int, int) { return b.dim, b.x, b.y, b.z }
+
 func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 	var searchScope byte
 	if q.searchScope == 0 {
@@ -233,6 +264,9 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 
 	if q.entities.CustomName != nil {
 		searchScope = setEntitiesScope(searchScope)
+	}
+	if q.entities.WithBlocks {
+		searchScope = setBlockScope(searchScope)
 	}
 
 	type regionNbbox struct {
@@ -302,6 +336,22 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 			description += desc
 			coord := mc.NewCoord(dim, x, y, z)
 			clb(NewResult(coord, description, item))
+		}
+	}
+
+	if hasBlockScope(searchScope) {
+		for _, t := range regionsNbbox {
+			t.region.Each(func(chunk *Chunk) {
+				chunk.Each(func(blockID mc.ID, x, y, z int) {
+					x += t.region.GetX()*32*16 + chunk.GetX()*16
+					z += t.region.GetZ()*32*16 + chunk.GetZ()*16
+					block := NewBlock(blockID, t.region.dim, x, y, z)
+					if t.bbox != nil && !t.bbox.Contains(block) {
+						return
+					}
+					processResult(t.region.dim, x, y, z, block, "")
+				})
+			})
 		}
 	}
 

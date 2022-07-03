@@ -1,7 +1,9 @@
 package mcq
 
 import (
+	"github.com/alaingilbert/mcq/mc"
 	"github.com/alaingilbert/mcq/nbt"
+	"math/bits"
 )
 
 const NbSection int = 16
@@ -39,4 +41,39 @@ func (c *Chunk) GetData() (data *nbt.NbtTree) {
 // SetData ...
 func (c *Chunk) SetData(data *nbt.NbtTree) {
 	c.data = data
+}
+
+// Each iterates all blocks in a chunk
+func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
+	sections := c.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
+	for s := 0; s < NbSection; s++ {
+		sectionRaw := sections.Get(s)
+		section := sectionRaw.(*nbt.TagNodeCompound)
+		blockStates := section.Entries["block_states"].(*nbt.TagNodeCompound)
+		palette := blockStates.Entries["palette"].(*nbt.TagNodeList)
+		if palette.Length() == 1 {
+			continue
+		}
+		data := blockStates.Entries["data"].(*nbt.TagNodeLongArray)
+		mask := uint8(0b1111)
+		if palette.Length() > 64 {
+			mask = 0b111_1111
+		} else if palette.Length() > 32 {
+			mask = 0b11_1111
+		} else if palette.Length() > 16 {
+			mask = 0b1_1111
+		}
+		ones := bits.OnesCount8(mask)
+		for blockPos := 0; blockPos < XDim*ZDim*YDim; blockPos++ {
+			blockLngIdx := blockPos / (64 / ones)
+			lng := data.Data()[blockLngIdx]
+			indexRemaining := blockPos % (64 / ones)
+			blockPaletteIndex := int(uint8(lng>>(indexRemaining*ones)) & mask)
+			blockID := mc.ID(palette.Get(blockPaletteIndex).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
+			y := blockPos / ZDim / XDim
+			z := (blockPos - (y * ZDim * XDim)) / XDim
+			x := blockPos - (y * ZDim * XDim) - (z * XDim)
+			clb(blockID, x, y, z)
+		}
+	}
 }
