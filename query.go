@@ -46,7 +46,6 @@ type Result struct {
 	Dim         mc.Dimension
 	X, Y, Z     int
 	Description string
-	NbtItem     *nbt.TagNodeCompound // TODO: Remove?
 	Item        any
 }
 
