@@ -250,10 +250,10 @@ func (r *Region) GetDimension() Dimension {
 	return r.dim
 }
 
-func (r *Region) GetChunkFromWorldXZ(dim Dimension, worldX, worldZ int) *Chunk {
+func (r *Region) GetChunkFromWorldXZ(worldX, worldZ int) *Chunk {
 	cx := worldX >> 4
 	cz := worldZ >> 4
-	return r.GetChunk(dim, cx, cz)
+	return r.GetChunk(r.dim, cx, cz)
 }
 
 func (r *Region) GetEntities(localX, localZ int) *Chunk {

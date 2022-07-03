@@ -148,7 +148,7 @@ func (q *query) Block(x, y, z int, clb func(mc.ID)) {
 	yy := y + 64
 	rx, rz := RegionCoordinatesFromWorldXZ(x, z)
 	region := q.world.RegionManager().GetRegion(Overworld, rx, rz)
-	chunk := region.GetChunkFromWorldXZ(Overworld, x, z)
+	chunk := region.GetChunkFromWorldXZ(x, z)
 	sections, ok := chunk.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
 	if !ok {
 		return
