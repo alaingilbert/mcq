@@ -66,8 +66,8 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 		blockStates := section.Entries["block_states"].(*nbt.TagNodeCompound)
 		palette := blockStates.Entries["palette"].(*nbt.TagNodeList)
 		if palette.Length() == 1 {
+			blockID := mc.ID(palette.Get(0).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
 			for blockPos := 0; blockPos < XDim*ZDim*SectionHeight; blockPos++ {
-				blockID := mc.ID(palette.Get(0).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
 				x, y, z := coordFromPos(s, blockPos)
 				clb(blockID, x, y, z)
 			}
