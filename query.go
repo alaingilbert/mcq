@@ -342,15 +342,33 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 	if hasBlockScope(searchScope) {
 		for _, t := range regionsNbbox {
 			t.region.Each(func(chunk *Chunk) {
-				chunk.Each(func(blockID mc.ID, x, y, z int) {
-					x += t.region.GetX()*32*16 + chunk.GetX()*16
-					z += t.region.GetZ()*32*16 + chunk.GetZ()*16
-					block := NewBlock(blockID, t.region.dim, x, y, z)
-					if t.bbox != nil && !t.bbox.Contains(block) {
-						return
-					}
-					processResult(t.region.dim, x, y, z, block, "")
-				})
+
+				chunkBBox := New3DBBox(t.region.dim,
+					chunk.GetX()*16+t.region.GetX()*32*16,
+					-65536,
+					chunk.GetZ()*16+t.region.GetZ()*32*16,
+					chunk.GetX()*16+t.region.GetX()*32*16+16,
+					30000000,
+					chunk.GetZ()*16+t.region.GetZ()*32*16+16)
+
+				if (t.bbox.Coord2().X() > chunkBBox.coord1.X()) &&
+					(t.bbox.Coord1().X() < chunkBBox.coord2.X()) &&
+					(t.bbox.Coord2().Y() > chunkBBox.coord1.Y()) &&
+					(t.bbox.Coord1().Y() < chunkBBox.coord2.Y()) &&
+					(t.bbox.Coord2().Z() > chunkBBox.coord1.Z()) &&
+					(t.bbox.Coord1().Z() < chunkBBox.coord2.Z()) {
+
+					chunk.Each(func(blockID mc.ID, x, y, z int) {
+						x += t.region.GetX()*32*16 + chunk.GetX()*16
+						z += t.region.GetZ()*32*16 + chunk.GetZ()*16
+						block := NewBlock(blockID, t.region.dim, x, y, z)
+						if t.bbox != nil && !t.bbox.Contains(block) {
+							return
+						}
+						processResult(t.region.dim, x, y, z, block, "")
+					})
+
+				}
 			})
 		}
 	}
