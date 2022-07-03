@@ -9,7 +9,7 @@ import (
 
 type query struct {
 	world       *World
-	bboxes      []BBox
+	bboxes      []IBBox
 	targets     map[mc.ID]struct{}
 	entities    *EntitiesConf
 	dim         mc.Dimension
@@ -25,16 +25,36 @@ func (q *query) hasTarget(targetID mc.ID) bool {
 }
 
 type BBox struct {
-	dim            mc.Dimension
-	x1, z1, x2, z2 int
+	coord1, coord2 mc.ICoordinate
 }
 
-func NewBBox(dim mc.Dimension, x1, z1, x2, z2 int) BBox {
-	return BBox{dim: dim, x1: x1, z1: z1, x2: x2, z2: z2}
+func New2DBBox(dim mc.Dimension, x1, z1, x2, z2 int) *BBox {
+	return New3DBBox(dim, x1, -65536, z1, x2, 30000000, z2)
 }
 
-func (b *BBox) Contains(x, z int) bool {
-	return x >= b.x1 && x <= b.x2 && z >= b.z1 && z <= b.z2
+func New3DBBox(dim mc.Dimension, x1, y1, z1, x2, y2, z2 int) *BBox {
+	if x2 < x1 {
+		x1, x2 = x2, x1
+	}
+	if y2 < y1 {
+		y1, y2 = y2, y1
+	}
+	if z2 < z1 {
+		z1, z2 = z2, z1
+	}
+	return &BBox{
+		coord1: mc.NewCoord(dim, x1, y1, z1),
+		coord2: mc.NewCoord(dim, x2, y2, z2),
+	}
+}
+
+func (b BBox) Coord1() mc.ICoordinate { return b.coord1 }
+func (b BBox) Coord2() mc.ICoordinate { return b.coord2 }
+
+func (b BBox) Contains(coord mc.ICoordinate) bool {
+	return coord.X() >= b.coord1.X() && coord.X() <= b.coord2.X() &&
+		coord.Y() >= b.coord1.Y() && coord.Y() <= b.coord2.Y() &&
+		coord.Z() >= b.coord1.Z() && coord.Z() <= b.coord2.Z()
 }
 
 type regionQ struct {
@@ -72,12 +92,18 @@ func (r Result) Coord() string {
 func Q(world *World) *query {
 	q := new(query)
 	q.world = world
-	q.bboxes = make([]BBox, 0)
+	q.bboxes = make([]IBBox, 0)
 	q.targets = make(map[mc.ID]struct{})
 	return q
 }
 
-func (q *query) BBox(bbox BBox) *query {
+type IBBox interface {
+	Coord1() mc.ICoordinate
+	Coord2() mc.ICoordinate
+	Contains(coord mc.ICoordinate) bool
+}
+
+func (q *query) BBox(bbox IBBox) *query {
 	q.bboxes = append(q.bboxes, bbox)
 	return q
 }
@@ -211,7 +237,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 
 	type regionNbbox struct {
 		region *Region
-		bbox   *BBox
+		bbox   IBBox
 	}
 
 	regionsNbbox := make([]regionNbbox, 0)
@@ -234,20 +260,14 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 		}
 	} else {
 		for _, bb := range q.bboxes {
-			if bb.x2 < bb.x1 {
-				bb.x1, bb.x2 = bb.x2, bb.x1
-			}
-			if bb.z2 < bb.z1 {
-				bb.z1, bb.z2 = bb.z2, bb.z1
-			}
-			startX, startZ := RegionCoordinatesFromWorldXZ(bb.x1, bb.z1)
+			startX, startZ := RegionCoordinatesFromWorldXZ(bb.Coord1().X(), bb.Coord1().Z())
 			startX *= 16 * 32
 			startZ *= 16 * 32
-			for tmpx := startX; tmpx <= bb.x2; tmpx += 32 * 16 {
-				for tmpz := startZ; tmpz <= bb.z2; tmpz += 32 * 16 {
+			for tmpx := startX; tmpx <= bb.Coord2().X(); tmpx += 32 * 16 {
+				for tmpz := startZ; tmpz <= bb.Coord2().Z(); tmpz += 32 * 16 {
 					rx, rz := RegionCoordinatesFromWorldXZ(tmpx, tmpz)
-					region := q.world.RegionManager().GetRegion(bb.dim, rx, rz)
-					regionsNbbox = append(regionsNbbox, regionNbbox{region, &bb})
+					region := q.world.RegionManager().GetRegion(bb.Coord1().Dim(), rx, rz)
+					regionsNbbox = append(regionsNbbox, regionNbbox{region, bb})
 				}
 			}
 		}
@@ -293,7 +313,8 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						blockEntityNbt := node.(*nbt.TagNodeCompound)
 						blockEntity := mc.ParseBlockEntity(blockEntityNbt)
 						x, y, z := blockEntity.X(), blockEntity.Y(), blockEntity.Z()
-						if t.bbox != nil && !t.bbox.Contains(x, z) {
+						blockCoord := mc.NewCoord(t.region.GetDimension(), x, y, z)
+						if t.bbox != nil && !t.bbox.Contains(blockCoord) {
 							return
 						}
 
@@ -327,7 +348,8 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						entityNbt := entityRaw.(*nbt.TagNodeCompound)
 						entity := mc.ParseEntity(entityNbt)
 						x, y, z := int(entity.Pos()[0]), int(entity.Pos()[1]), int(entity.Pos()[2])
-						if t.bbox != nil && !t.bbox.Contains(x, z) {
+						entityCoord := mc.NewCoord(t.region.GetDimension(), x, y, z)
+						if t.bbox != nil && !t.bbox.Contains(entityCoord) {
 							return
 						}
 
