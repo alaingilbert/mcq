@@ -46,10 +46,10 @@ type Result struct {
 	Dim         mc.Dimension
 	X, Y, Z     int
 	Description string
-	Item        any
+	Item        mc.IIdentifiable
 }
 
-func NewResult(dim mc.Dimension, x, y, z int, desc string, itemParsed any) Result {
+func NewResult(dim mc.Dimension, x, y, z int, desc string, itemParsed mc.IIdentifiable) Result {
 	return Result{
 		Dim:         dim,
 		X:           x,
