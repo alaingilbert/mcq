@@ -47,8 +47,7 @@ func (c *Chunk) SetData(data *nbt.NbtTree) {
 func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 	sections := c.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
 	for s := 0; s < NbSection; s++ {
-		sectionRaw := sections.Get(s)
-		section := sectionRaw.(*nbt.TagNodeCompound)
+		section := sections.Get(s).(*nbt.TagNodeCompound)
 		blockStates := section.Entries["block_states"].(*nbt.TagNodeCompound)
 		palette := blockStates.Entries["palette"].(*nbt.TagNodeList)
 		if palette.Length() == 1 {
@@ -70,9 +69,11 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 			indexRemaining := blockPos % (64 / ones)
 			blockPaletteIndex := int(uint8(lng>>(indexRemaining*ones)) & mask)
 			blockID := mc.ID(palette.Get(blockPaletteIndex).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
-			y := blockPos / ZDim / XDim
-			z := (blockPos - (y * ZDim * XDim)) / XDim
-			x := blockPos - (y * ZDim * XDim) - (z * XDim)
+			y := blockPos / YDim
+			z := blockPos % YDim / XDim
+			x := blockPos % XDim
+			y += s * SectionHeight
+			y -= 64
 			clb(blockID, x, y, z)
 		}
 	}
