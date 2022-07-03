@@ -64,7 +64,7 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 			mask = 0b1_1111
 		}
 		ones := bits.OnesCount8(mask)
-		for blockPos := 0; blockPos < XDim*ZDim*YDim; blockPos++ {
+		for blockPos := 0; blockPos < XDim*ZDim*SectionHeight; blockPos++ {
 			blockLngIdx := blockPos / (64 / ones)
 			lng := data.Data()[blockLngIdx]
 			indexRemaining := blockPos % (64 / ones)
