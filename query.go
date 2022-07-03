@@ -28,6 +28,7 @@ type IBBox interface {
 	Coord1() mc.ICoordinate
 	Coord2() mc.ICoordinate
 	Contains(coord mc.ICoordinate) bool
+	Intersect(other IBBox) bool
 }
 
 type BBox struct {
@@ -61,6 +62,15 @@ func (b BBox) Contains(coord mc.ICoordinate) bool {
 	return coord.X() >= b.coord1.X() && coord.X() <= b.coord2.X() &&
 		coord.Y() >= b.coord1.Y() && coord.Y() <= b.coord2.Y() &&
 		coord.Z() >= b.coord1.Z() && coord.Z() <= b.coord2.Z()
+}
+
+func (b BBox) Intersect(other IBBox) bool {
+	return (b.Coord2().X() > other.Coord1().X()) &&
+		(b.Coord1().X() < other.Coord2().X()) &&
+		(b.Coord2().Y() > other.Coord1().Y()) &&
+		(b.Coord1().Y() < other.Coord2().Y()) &&
+		(b.Coord2().Z() > other.Coord1().Z()) &&
+		(b.Coord1().Z() < other.Coord2().Z())
 }
 
 type regionQ struct {
@@ -349,13 +359,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 					chunk.GetWorldX()+16,
 					chunk.GetWorldZ()+16)
 
-				if (t.bbox.Coord2().X() > chunkBBox.coord1.X()) &&
-					(t.bbox.Coord1().X() < chunkBBox.coord2.X()) &&
-					(t.bbox.Coord2().Y() > chunkBBox.coord1.Y()) &&
-					(t.bbox.Coord1().Y() < chunkBBox.coord2.Y()) &&
-					(t.bbox.Coord2().Z() > chunkBBox.coord1.Z()) &&
-					(t.bbox.Coord1().Z() < chunkBBox.coord2.Z()) {
-
+				if t.bbox.Intersect(chunkBBox) {
 					chunk.Each(func(blockID mc.ID, x, y, z int) {
 						x += t.region.GetX()*32*16 + chunk.GetX()*16
 						z += t.region.GetZ()*32*16 + chunk.GetZ()*16
@@ -365,7 +369,6 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						}
 						processResult(t.region.dim, x, y, z, block, "")
 					})
-
 				}
 			})
 		}
