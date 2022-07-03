@@ -144,6 +144,49 @@ func hasItemsScope(scope byte) bool {
 	return scope&ItemsScope == ItemsScope
 }
 
+func (q *query) Block(x, y, z int, clb func(mc.ID)) {
+	yy := y + 64
+	rx, rz := RegionCoordinatesFromWorldXZ(x, z)
+	region := q.world.RegionManager().GetRegion(Overworld, rx, rz)
+	chunk := region.GetChunkFromWorldXZ(Overworld, x, z)
+	sections, ok := chunk.GetData().Root().Entries["sections"].(*nbt.TagNodeList)
+	if !ok {
+		return
+	}
+	xRemaining := x & 0b1111
+	zRemaining := z & 0b1111
+	sectionY := yy / SectionHeight
+	section := sections.Get(sectionY).(*nbt.TagNodeCompound)
+	blockStates := section.Entries["block_states"].(*nbt.TagNodeCompound)
+	palette := blockStates.Entries["palette"].(*nbt.TagNodeList)
+	if palette.Length() == 1 {
+		blockID := mc.ID(palette.Get(0).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
+		clb(blockID)
+		return
+	}
+	data := blockStates.Entries["data"].(*nbt.TagNodeLongArray)
+	yRemaining := yy % NbSection
+	blockPos := int64(yRemaining*ZDim*XDim + zRemaining*XDim + xRemaining)
+	bits := int64(4)
+	mask := int64(0b1111)
+	if palette.Length() > 64 {
+		bits = 7
+		mask = 0b111_1111
+	} else if palette.Length() > 32 {
+		bits = 6
+		mask = 0b11_1111
+	} else if palette.Length() > 16 {
+		bits = 5
+		mask = 0b1_1111
+	}
+	blockLngIdx := blockPos / (64 / bits)
+	lng := data.Data()[int(blockLngIdx)]
+	indexRemaining := blockPos % (64 / bits)
+	blockPaletteIndex := int((lng >> (indexRemaining * bits)) & mask)
+	blockID := mc.ID(palette.Get(blockPaletteIndex).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
+	clb(blockID)
+}
+
 func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 	var searchScope byte
 	if q.searchScope == 0 {
