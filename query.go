@@ -231,23 +231,6 @@ func (q *query) Block(coord mc.ICoordinate, clb func(mc.ID)) {
 	clb(blockID)
 }
 
-type Block struct {
-	id      mc.ID
-	dim     mc.Dimension
-	x, y, z int
-}
-
-func NewBlock(id mc.ID, dim mc.Dimension, x, y, z int) *Block {
-	return &Block{id: id, dim: dim, x: x, y: y, z: z}
-}
-
-func (b Block) ID() mc.ID                             { return b.id }
-func (b Block) Dim() mc.Dimension                     { return b.dim }
-func (b Block) X() int                                { return b.x }
-func (b Block) Y() int                                { return b.y }
-func (b Block) Z() int                                { return b.z }
-func (b Block) Unpack() (mc.Dimension, int, int, int) { return b.dim, b.x, b.y, b.z }
-
 func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 	var searchScope byte
 	if q.searchScope == 0 {
@@ -360,12 +343,11 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 					chunk.GetWorldZ()+16)
 
 				if t.bbox.Intersect(chunkBBox) {
-					chunk.Each(func(blockID mc.ID, x, y, z int) {
-						block := NewBlock(blockID, t.region.dim, x, y, z)
+					chunk.Each(func(block mc.Block) {
 						if t.bbox != nil && !t.bbox.Contains(block) {
 							return
 						}
-						processResult(t.region.dim, x, y, z, block, "")
+						processResult(t.region.dim, block.X(), block.Y(), block.Z(), block, "")
 					})
 				}
 			})

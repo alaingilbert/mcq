@@ -85,7 +85,7 @@ func (r *Region) Each(clb func(chunk *Chunk)) {
 
 	for cx := 0; cx < 32; cx++ {
 		for cz := 0; cz < 32; cz++ {
-			chunk := getChunkFromReadSeeker(b, r.x, r.z, cx, cz)
+			chunk := getChunkFromReadSeeker(b, r.dim, r.x, r.z, cx, cz)
 			if chunk == nil {
 				continue
 			}
@@ -116,7 +116,7 @@ func (r *Region) EachEntities(clb func(chunk *Chunk)) {
 
 	for cx := 0; cx < 32; cx++ {
 		for cz := 0; cz < 32; cz++ {
-			chunk := getChunkFromReadSeeker(b, r.x, r.z, cx, cz)
+			chunk := getChunkFromReadSeeker(b, r.dim, r.x, r.z, cx, cz)
 			if chunk == nil {
 				continue
 			}
@@ -165,7 +165,7 @@ const (
 )
 
 // https://minecraft.fandom.com/wiki/Region_file_format
-func processRMCAFile(p string, regionX, regionZ, chunkX, chunkZ int) *Chunk {
+func processRMCAFile(p string, dim mc.Dimension, regionX, regionZ, chunkX, chunkZ int) *Chunk {
 	f, err := os.Open(p)
 	if err != nil {
 		log.Println(err)
@@ -173,10 +173,10 @@ func processRMCAFile(p string, regionX, regionZ, chunkX, chunkZ int) *Chunk {
 	}
 	defer f.Close()
 
-	return getChunkFromReadSeeker(f, regionX, regionZ, chunkX, chunkZ)
+	return getChunkFromReadSeeker(f, dim, regionX, regionZ, chunkX, chunkZ)
 }
 
-func getChunkFromReadSeeker(f io.ReadSeeker, regionX, regionZ, chunkX, chunkZ int) *Chunk {
+func getChunkFromReadSeeker(f io.ReadSeeker, dim mc.Dimension, regionX, regionZ, chunkX, chunkZ int) *Chunk {
 	location := chunkHeaderOffset(chunkX, chunkZ)
 
 	// Move to chunk header location
@@ -219,7 +219,7 @@ func getChunkFromReadSeeker(f io.ReadSeeker, regionX, regionZ, chunkX, chunkZ in
 		buf := new(bytes.Buffer)
 		_, _ = buf.ReadFrom(reader)
 		tree := nbt.NewNbtTree(buf)
-		chunk := NewChunk(regionX, regionZ, chunkX, chunkZ)
+		chunk := NewChunk(dim, regionX, regionZ, chunkX, chunkZ)
 		chunk.SetData(tree)
 		return chunk
 	}
@@ -246,7 +246,7 @@ func (r *Region) GetEntities(localX, localZ int) *Chunk {
 	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, EntitiesDir, r.FileName())
 	}
-	return processRMCAFile(p, r.x, r.z, localX, localZ)
+	return processRMCAFile(p, r.dim, r.x, r.z, localX, localZ)
 }
 
 // GetChunk get the information for a specific chunk.
@@ -263,7 +263,7 @@ func (r *Region) GetChunk(dimension mc.Dimension, localX, localZ int) *Chunk {
 	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
 	}
-	return processRMCAFile(p, r.x, r.z, localX, localZ)
+	return processRMCAFile(p, r.dim, r.x, r.z, localX, localZ)
 }
 
 // chunkHeaderOffset get the offset of the chunk information in the file header.

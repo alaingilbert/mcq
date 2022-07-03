@@ -14,16 +14,18 @@ const ZDim int = 16
 
 // Chunk ...
 type Chunk struct {
+	dim              mc.Dimension
 	regionX, regionZ int
 	localX, localZ   int
 	data             *nbt.NbtTree
 }
 
 // NewChunk ...
-func NewChunk(regionX, regionZ, localX, localZ int) *Chunk {
+func NewChunk(dim mc.Dimension, regionX, regionZ, localX, localZ int) *Chunk {
 	chunk := new(Chunk)
 	chunk.localX = localX
 	chunk.localZ = localZ
+	chunk.dim = dim
 	chunk.regionX = regionX
 	chunk.regionZ = regionZ
 	return chunk
@@ -51,7 +53,7 @@ func (c *Chunk) SetData(data *nbt.NbtTree) {
 }
 
 // Each iterates all blocks in a chunk
-func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
+func (c *Chunk) Each(clb func(block mc.Block)) {
 	coordFromPos := func(section, blockPos int) (x int, y int, z int) {
 		y = blockPos / YDim
 		z = blockPos % YDim / XDim
@@ -71,7 +73,9 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 			blockID := mc.ID(palette.Get(0).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
 			for blockPos := 0; blockPos < XDim*ZDim*SectionHeight; blockPos++ {
 				x, y, z := coordFromPos(s, blockPos)
-				clb(blockID, x, y, z)
+				coord := *mc.NewCoord(c.dim, x, y, z)
+				block := *mc.NewBlock(blockID, coord)
+				clb(block)
 			}
 			continue
 		}
@@ -92,7 +96,9 @@ func (c *Chunk) Each(clb func(blockID mc.ID, x, y, z int)) {
 			blockPaletteIndex := int(uint8(lng>>(indexRemaining*ones)) & mask)
 			blockID := mc.ID(palette.Get(blockPaletteIndex).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
 			x, y, z := coordFromPos(s, blockPos)
-			clb(blockID, x, y, z)
+			coord := *mc.NewCoord(c.dim, x, y, z)
+			block := *mc.NewBlock(blockID, coord)
+			clb(block)
 		}
 	}
 }
