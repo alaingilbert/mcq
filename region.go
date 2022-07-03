@@ -251,8 +251,8 @@ func (r *Region) GetDimension() Dimension {
 }
 
 func (r *Region) GetChunkFromWorldXZ(dim Dimension, worldX, worldZ int) *Chunk {
-	cx := worldX >> 5
-	cz := worldZ >> 5
+	cx := worldX >> 4
+	cz := worldZ >> 4
 	return r.GetChunk(dim, cx, cz)
 }
 
