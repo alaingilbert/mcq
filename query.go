@@ -344,10 +344,10 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 			t.region.Each(func(chunk *Chunk) {
 
 				chunkBBox := New2DBBox(t.region.dim,
-					chunk.GetX()*16+t.region.GetX()*32*16,
-					chunk.GetZ()*16+t.region.GetZ()*32*16,
-					chunk.GetX()*16+t.region.GetX()*32*16+16,
-					chunk.GetZ()*16+t.region.GetZ()*32*16+16)
+					chunk.GetWorldX(),
+					chunk.GetWorldZ(),
+					chunk.GetWorldX()+16,
+					chunk.GetWorldZ()+16)
 
 				if (t.bbox.Coord2().X() > chunkBBox.coord1.X()) &&
 					(t.bbox.Coord1().X() < chunkBBox.coord2.X()) &&
