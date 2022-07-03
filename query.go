@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/alaingilbert/mcq/mc"
 	"github.com/alaingilbert/mcq/nbt"
+	"math/bits"
 )
 
 type query struct {
@@ -166,23 +167,20 @@ func (q *query) Block(dim Dimension, x, y, z int, clb func(mc.ID)) {
 	}
 	data := blockStates.Entries["data"].(*nbt.TagNodeLongArray)
 	yRemaining := yy % NbSection
-	blockPos := int64(yRemaining*ZDim*XDim + zRemaining*XDim + xRemaining)
-	bits := int64(4)
-	mask := int64(0b1111)
+	blockPos := yRemaining*ZDim*XDim + zRemaining*XDim + xRemaining
+	mask := uint8(0b1111)
 	if palette.Length() > 64 {
-		bits = 7
 		mask = 0b111_1111
 	} else if palette.Length() > 32 {
-		bits = 6
 		mask = 0b11_1111
 	} else if palette.Length() > 16 {
-		bits = 5
 		mask = 0b1_1111
 	}
-	blockLngIdx := blockPos / (64 / bits)
-	lng := data.Data()[int(blockLngIdx)]
-	indexRemaining := blockPos % (64 / bits)
-	blockPaletteIndex := int((lng >> (indexRemaining * bits)) & mask)
+	ones := bits.OnesCount8(mask)
+	blockLngIdx := blockPos / (64 / ones)
+	lng := data.Data()[blockLngIdx]
+	indexRemaining := blockPos % (64 / ones)
+	blockPaletteIndex := int(uint8(lng>>(indexRemaining*ones)) & mask)
 	blockID := mc.ID(palette.Get(blockPaletteIndex).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
 	clb(blockID)
 }
