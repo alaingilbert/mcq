@@ -31,7 +31,8 @@ mcq.Q(world).BBox(bbox).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
 
 Find all ShulkerBox in a region where the first slot is an Apple
 ```go
-mcq.Q(world).BBox(mcq.New2DBBox(mc.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
+bbox := mcq.New2DBBox(mc.Overworld, 170, 160, 266, 226)
+mcq.Q(world).BBox(bbox).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
     if shulkerBox, ok := result.Item.(mc.IContainerEntity); ok {
         shulkerBox.Items().Each(func(item mc.IItem) {
             if item.Slot() == 0 && item.ID() == mc.AppleID {
