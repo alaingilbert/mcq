@@ -43,6 +43,8 @@ func (e blockEntity) Z() int             { return e.z }
 func ParseBlockEntity(node *nbt.TagNodeCompound) (parsed IBlockEntity) {
 	id := ID(node.Entries["id"].(*nbt.TagNodeString).String())
 	switch id {
+	case BrewingStandID:
+		parsed = BrewingStandFromNbt(node)
 	case BarrelID:
 		parsed = BarrelFromNbt(node)
 	case LecternID:
