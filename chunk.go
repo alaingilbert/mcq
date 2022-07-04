@@ -8,9 +8,9 @@ import (
 
 const NbSection int = 16
 const SectionHeight int = 16
-const XDim int = 16
-const YDim int = 256
-const ZDim int = 16
+const ChunkXDim int = 16
+const ChunkYDim int = 256 // 16 sections of 16 blocks
+const ChunkZDim int = 16
 const RegionWidth = 512 // 32 chunks of 16 blocks
 
 // Chunk ...
@@ -56,9 +56,9 @@ func (c *Chunk) SetData(data *nbt.NbtTree) {
 // Each iterates all blocks in a chunk
 func (c *Chunk) Each(clb func(block mc.Block)) {
 	coordFromPos := func(section, blockPos int) (x int, y int, z int) {
-		y = blockPos / YDim
-		z = blockPos % YDim / XDim
-		x = blockPos % XDim
+		y = blockPos / ChunkYDim
+		z = blockPos % ChunkYDim / ChunkXDim
+		x = blockPos % ChunkXDim
 		y += section * SectionHeight
 		y -= 64
 		x += c.GetWorldX()
@@ -72,7 +72,7 @@ func (c *Chunk) Each(clb func(block mc.Block)) {
 		palette := blockStates.Entries["palette"].(*nbt.TagNodeList)
 		if palette.Length() == 1 {
 			blockID := mc.ID(palette.Get(0).(*nbt.TagNodeCompound).Entries["Name"].(*nbt.TagNodeString).String())
-			for blockPos := 0; blockPos < XDim*ZDim*SectionHeight; blockPos++ {
+			for blockPos := 0; blockPos < ChunkXDim*ChunkZDim*SectionHeight; blockPos++ {
 				x, y, z := coordFromPos(s, blockPos)
 				coord := *mc.NewCoord(c.dim, x, y, z)
 				block := *mc.NewBlock(blockID, coord)
@@ -90,7 +90,7 @@ func (c *Chunk) Each(clb func(block mc.Block)) {
 			mask = 0b1_1111
 		}
 		ones := bits.OnesCount8(mask)
-		for blockPos := 0; blockPos < XDim*ZDim*SectionHeight; blockPos++ {
+		for blockPos := 0; blockPos < ChunkXDim*ChunkZDim*SectionHeight; blockPos++ {
 			blockLngIdx := blockPos / (64 / ones)
 			lng := data.Data()[blockLngIdx]
 			indexRemaining := blockPos % (64 / ones)

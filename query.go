@@ -213,7 +213,7 @@ func (q *query) Block(coord mc.ICoordinate, clb func(mc.ID)) {
 	}
 	data := blockStates.Entries["data"].(*nbt.TagNodeLongArray)
 	yRemaining := yy % NbSection
-	blockPos := yRemaining*ZDim*XDim + zRemaining*XDim + xRemaining
+	blockPos := yRemaining*ChunkZDim*ChunkXDim + zRemaining*ChunkXDim + xRemaining
 	mask := uint8(0b1111)
 	if palette.Length() > 64 {
 		mask = 0b111_1111
@@ -339,8 +339,8 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 				chunkBBox := New2DBBox(t.region.dim,
 					chunk.GetWorldX(),
 					chunk.GetWorldZ(),
-					chunk.GetWorldX()+16,
-					chunk.GetWorldZ()+16)
+					chunk.GetWorldX()+ChunkXDim,
+					chunk.GetWorldZ()+ChunkZDim)
 
 				if t.bbox.Intersect(chunkBBox) {
 					chunk.Each(func(block mc.Block) {
