@@ -193,7 +193,7 @@ func getChunkFromReadSeeker(f io.ReadSeeker, dim mc.Dimension, regionX, regionZ,
 	}
 
 	// Move to chunk data location
-	_, _ = f.Seek(offset*4096, 0)
+	_, _ = f.Seek(offset<<12, 0)
 
 	// Get length in bytes
 	lengthBytes := make([]byte, 4)
