@@ -62,3 +62,11 @@ mcq.Q(world).Targets(mc.SignID).Find(func(result mcq.Result) {
     }
 })
 ```
+
+Find all Diamond-Ore
+```go
+bbox := mcq.New2DBBox(mc.Overworld, 0, 0, 100, 100)
+mcq.Q(world).BBox(bbox).Targets(mc.DiamondOreID).Find(func(result mcq.Result) {
+    fmt.Printf("Found diamond ore at %s\n", result.Coord())
+}, mcq.WithBlocks)
+```
