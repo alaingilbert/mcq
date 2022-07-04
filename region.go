@@ -270,5 +270,5 @@ func (r *Region) GetChunk(dimension mc.Dimension, localX, localZ int) *Chunk {
 // It returns the offset in bytes.
 // & 0b1_1111 ensure the value is always in the range [0-31]
 func chunkHeaderOffset(chunkX, chunkZ int) int {
-	return ((chunkX & 0b1_1111) + (chunkZ&0b1_1111)*32) * 4
+	return ((chunkX & 0b1_1111) + (chunkZ&0b1_1111)<<5) << 2
 }

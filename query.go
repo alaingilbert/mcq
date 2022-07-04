@@ -288,11 +288,11 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 	} else {
 		for _, bb := range q.bboxes {
 			startX, startZ := RegionCoordinatesFromWorldXZ(bb.Coord1().X(), bb.Coord1().Z())
-			startX *= 16 * 32
-			startZ *= 16 * 32
-			for tmpx := startX; tmpx <= bb.Coord2().X(); tmpx += 32 * 16 {
-				for tmpz := startZ; tmpz <= bb.Coord2().Z(); tmpz += 32 * 16 {
-					rx, rz := RegionCoordinatesFromWorldXZ(tmpx, tmpz)
+			startX <<= 9
+			startZ <<= 9
+			for tmpX := startX; tmpX <= bb.Coord2().X(); tmpX += RegionWidth {
+				for tmpZ := startZ; tmpZ <= bb.Coord2().Z(); tmpZ += RegionWidth {
+					rx, rz := RegionCoordinatesFromWorldXZ(tmpX, tmpZ)
 					region := q.world.RegionManager().GetRegion(bb.Coord1().Dim(), rx, rz)
 					regionsNbbox = append(regionsNbbox, regionNbbox{region, bb})
 				}

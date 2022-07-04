@@ -11,6 +11,7 @@ const SectionHeight int = 16
 const XDim int = 16
 const YDim int = 256
 const ZDim int = 16
+const RegionWidth = 512 // 32 chunks of 16 blocks
 
 // Chunk ...
 type Chunk struct {
