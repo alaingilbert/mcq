@@ -300,7 +300,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 		}
 	}
 
-	processResult := func(dim mc.Dimension, x, y, z int, item mc.IIdentifiable, desc string) {
+	processResult := func(coord mc.ICoordinate, item mc.IIdentifiable, desc string) {
 		if q.hasTarget(item.ID()) {
 			if q.entities.CustomName != nil {
 				if *q.entities.CustomName {
@@ -327,7 +327,6 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 				description += "found " + item.ID().String()
 			}
 			description += desc
-			coord := mc.NewCoord(dim, x, y, z)
 			clb(NewResult(coord, description, item))
 		}
 	}
@@ -347,7 +346,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						if t.bbox != nil && !t.bbox.Contains(block) {
 							return
 						}
-						processResult(t.region.dim, block.X(), block.Y(), block.Z(), block, "")
+						processResult(block, block, "")
 					})
 				}
 			})
@@ -368,7 +367,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						}
 
 						processResult1 := func(item mc.IIdentifiable, desc string) {
-							processResult(t.region.GetDimension(), x, y, z, item, desc)
+							processResult(blockCoord, item, desc)
 						}
 
 						// Process the block entity itself
@@ -403,7 +402,7 @@ func (q *query) Find(clb func(Result), opts ...EntitiesOption) {
 						}
 
 						processResult1 := func(item mc.IIdentifiable, desc string) {
-							processResult(t.region.GetDimension(), x, y, z, item, desc)
+							processResult(entityCoord, item, desc)
 						}
 
 						processMob := func(mob mc.IMob, desc string) {
