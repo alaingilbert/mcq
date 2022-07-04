@@ -6,11 +6,11 @@ import (
 	"math/bits"
 )
 
-const NbSection int = 16
-const SectionHeight int = 16
-const ChunkXDim int = 16
-const ChunkYDim int = 256 // 16 sections of 16 blocks
-const ChunkZDim int = 16
+const NbSection = 16
+const SectionHeight = 16
+const ChunkXDim = 16
+const ChunkYDim = 256 // 16 sections of 16 blocks
+const ChunkZDim = 16
 const RegionWidth = 512 // 32 chunks of 16 blocks
 
 // Chunk ...
