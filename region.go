@@ -64,15 +64,7 @@ func regionCoordinatesFromXYZ(x, y, z int) (int, int) {
 }
 
 func (r *Region) Each(clb func(chunk *Chunk)) {
-	var p string
-	switch r.dim {
-	case mc.Overworld:
-		p = path.Join(r.regionManager.WorldPath(), RegionDir, r.FileName())
-	case mc.Nether:
-		p = path.Join(r.regionManager.WorldPath(), NetherDir, RegionDir, r.FileName())
-	case mc.TheEnd:
-		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
-	}
+	p := r.getRegionFilePath()
 
 	f, err := os.Open(p)
 	if err != nil {
@@ -94,8 +86,19 @@ func (r *Region) Each(clb func(chunk *Chunk)) {
 	}
 }
 
-func (r *Region) EachEntities(clb func(chunk *Chunk)) {
-	var p string
+func (r *Region) getRegionFilePath() (p string) {
+	switch r.dim {
+	case mc.Overworld:
+		p = path.Join(r.regionManager.WorldPath(), RegionDir, r.FileName())
+	case mc.Nether:
+		p = path.Join(r.regionManager.WorldPath(), NetherDir, RegionDir, r.FileName())
+	case mc.TheEnd:
+		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
+	}
+	return
+}
+
+func (r *Region) getEntitiesFilePath() (p string) {
 	switch r.dim {
 	case mc.Overworld:
 		p = path.Join(r.regionManager.WorldPath(), EntitiesDir, r.FileName())
@@ -104,6 +107,11 @@ func (r *Region) EachEntities(clb func(chunk *Chunk)) {
 	case mc.TheEnd:
 		p = path.Join(r.regionManager.WorldPath(), TheEndDir, EntitiesDir, r.FileName())
 	}
+	return
+}
+
+func (r *Region) EachEntities(clb func(chunk *Chunk)) {
+	p := r.getEntitiesFilePath()
 
 	f, err := os.Open(p)
 	if err != nil {
@@ -233,19 +241,11 @@ func (r *Region) GetDimension() mc.Dimension {
 func (r *Region) GetChunkFromWorldXZ(worldX, worldZ int) *Chunk {
 	cx := worldX >> 4
 	cz := worldZ >> 4
-	return r.GetChunk(r.dim, cx, cz)
+	return r.GetChunk(cx, cz)
 }
 
 func (r *Region) GetEntities(localX, localZ int) *Chunk {
-	var p string
-	switch r.dim {
-	case mc.Overworld:
-		p = path.Join(r.regionManager.WorldPath(), EntitiesDir, r.FileName())
-	case mc.Nether:
-		p = path.Join(r.regionManager.WorldPath(), NetherDir, EntitiesDir, r.FileName())
-	case mc.TheEnd:
-		p = path.Join(r.regionManager.WorldPath(), TheEndDir, EntitiesDir, r.FileName())
-	}
+	p := r.getEntitiesFilePath()
 	return processRMCAFile(p, r.dim, r.x, r.z, localX, localZ)
 }
 
@@ -253,16 +253,8 @@ func (r *Region) GetEntities(localX, localZ int) *Chunk {
 // localX X position of the chunk in the region.
 // localZ Z position of the chunk in the region.
 // It returns a pointer to the chunk.
-func (r *Region) GetChunk(dimension mc.Dimension, localX, localZ int) *Chunk {
-	var p string
-	switch dimension {
-	case mc.Overworld:
-		p = path.Join(r.regionManager.WorldPath(), RegionDir, r.FileName())
-	case mc.Nether:
-		p = path.Join(r.regionManager.WorldPath(), NetherDir, RegionDir, r.FileName())
-	case mc.TheEnd:
-		p = path.Join(r.regionManager.WorldPath(), TheEndDir, RegionDir, r.FileName())
-	}
+func (r *Region) GetChunk(localX, localZ int) *Chunk {
+	p := r.getRegionFilePath()
 	return processRMCAFile(p, r.dim, r.x, r.z, localX, localZ)
 }
 
