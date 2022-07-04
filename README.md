@@ -21,7 +21,8 @@ mcq.Q(world).Targets(mc.WrittenBookID, mc.WritableBookID).Find(func(result mcq.R
 
 Find all ShulkerBox in a region
 ```go
-mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
+bbox := mcq.New2DBBox(mc.Overworld, 170, 160, 266, 226)
+mcq.Q(world).BBox(bbox).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
     if container, ok := result.Item.(mc.IContainerEntity); ok {
         fmt.Printf("SHULKER: %s %s %v\n", result.Coord(), result.Description, container)
     }
@@ -30,7 +31,7 @@ mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.Shu
 
 Find all ShulkerBox in a region where the first slot is an Apple
 ```go
-mcq.Q(world).BBox(mcq.NewBBox(mcq.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
+mcq.Q(world).BBox(mcq.New2DBBox(mc.Overworld, 170, 160, 266, 226)).Targets(mc.ShulkerBoxID).Find(func(result mcq.Result) {
     if shulkerBox, ok := result.Item.(mc.IContainerEntity); ok {
         shulkerBox.Items().Each(func(item mc.IItem) {
             if item.Slot() == 0 && item.ID() == mc.AppleID {
