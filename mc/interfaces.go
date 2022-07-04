@@ -1,9 +1,5 @@
 package mc
 
-import (
-	"github.com/alaingilbert/mcq/nbt"
-)
-
 type IIdentifiable interface {
 	ID() ID
 }
@@ -13,8 +9,6 @@ type IItem interface {
 	Count() byte
 	Slot() byte
 	Display() string
-	Tag() *nbt.TagNodeCompound
-	Nbt() *nbt.TagNodeCompound
 }
 
 type IItems interface {

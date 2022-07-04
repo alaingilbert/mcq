@@ -18,17 +18,13 @@ type BaseItem struct {
 	slot    byte
 	count   byte
 	display string
-	tag     *nbt.TagNodeCompound
-	nbt     *nbt.TagNodeCompound
 }
 
-func (i BaseItem) ID() ID                    { return i.id }
-func (i BaseItem) Tag() *nbt.TagNodeCompound { return i.tag }
-func (i BaseItem) Display() string           { return i.display }
-func (i BaseItem) CustomName() string        { return i.display }
-func (i BaseItem) Nbt() *nbt.TagNodeCompound { return i.nbt }
-func (i BaseItem) Slot() byte                { return i.slot }
-func (i BaseItem) Count() byte               { return i.count }
+func (i BaseItem) ID() ID             { return i.id }
+func (i BaseItem) Display() string    { return i.display }
+func (i BaseItem) CustomName() string { return i.display }
+func (i BaseItem) Slot() byte         { return i.slot }
+func (i BaseItem) Count() byte        { return i.count }
 
 //func NewBaseItem(id mc.ID, item *nbt.TagNodeCompound) *BaseItem {
 //	return &BaseItem{id: id, nbt: item}
@@ -39,10 +35,8 @@ func baseItemFromNbt(node *nbt.TagNodeCompound) *BaseItem {
 		Text string `json:"text"`
 	}
 	i := new(BaseItem)
-	i.nbt = node
 	i.id = ID(node.Entries["id"].(*nbt.TagNodeString).String())
 	if tag, ok := node.Entries["tag"].(*nbt.TagNodeCompound); ok {
-		i.tag = tag
 		if display, ok := tag.Entries["display"].(*nbt.TagNodeCompound); ok {
 			name := display.Entries["Name"].(*nbt.TagNodeString).String()
 			var t txt
